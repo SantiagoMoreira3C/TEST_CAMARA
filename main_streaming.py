@@ -38,4 +38,4 @@ def video_feed():
 if __name__ == "__main__":
     import uvicorn
     # Escucha en todas las interfaces de red en el puerto 8000
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=3030)
