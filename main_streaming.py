@@ -198,7 +198,13 @@ async def index():
                 5. Ves el resultado en tiempo real<br>
                 <br>
                 <strong>🎨 Colores:</strong><br>
-                🟢 Verde = Alta confianza (≥75%) | 🟠 Naranja = Media (50-75%) | 🔴 Rojo = Baja (<50%)
+                🟢 Verde = Alta confianza (≥75%) | 🟠 Naranja = Media (50-75%) | 🔴 Rojo = Baja (<50%)<br>
+                <br>
+                <strong>⚠️ Si ves error de cámara:</strong><br>
+                • Usa Chrome, Firefox o Edge (recientes)<br>
+                • Asegúrate de estar en <code>http://</code> (no https://)<br>
+                • Revisa que la URL sea correcta: <code id="currentUrl"></code><br>
+                • Recarga la página (Ctrl+R)
             </div>
         </div>
 
@@ -215,11 +221,21 @@ async def index():
 
             async function startDetection() {
                 try {
+                    // Verificar si el navegador soporta mediaDevices
+                    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                        throw new Error('Tu navegador no soporta acceso a cámara. Intenta con Chrome, Firefox o Edge reciente.');
+                    }
+                    
                     status.textContent = '📹 Solicitando acceso a cámara...';
                     
                     // Obtener cámara del cliente
                     stream = await navigator.mediaDevices.getUserMedia({
-                        video: { width: 640, height: 480 }
+                        video: { 
+                            width: { ideal: 640 }, 
+                            height: { ideal: 480 },
+                            facingMode: "user"
+                        },
+                        audio: false
                     });
                     
                     video.srcObject = stream;
@@ -295,7 +311,24 @@ async def index():
 
             // Iniciar automáticamente
             window.addEventListener('load', () => {
-                status.textContent = '✅ Página cargada | Haz clic en "Iniciar Detección"';
+                // Mostrar URL actual
+                document.getElementById('currentUrl').textContent = window.location.href;
+                
+                // Verificar protocolo
+                if (window.location.protocol === 'https:') {
+                    status.textContent = '⚠️ Usando HTTPS - Algunos navegadores pueden requerir certificados válidos';
+                    status.style.background = '#fff3e0';
+                    status.style.color = '#e65100';
+                } else {
+                    status.textContent = '✅ Página cargada | Haz clic en "Iniciar Detección"';
+                }
+                
+                // Verificar soporte de mediaDevices
+                if (!navigator.mediaDevices) {
+                    status.textContent = '❌ ADVERTENCIA: Tu navegador no soporta acceso a cámara. Usa Chrome, Firefox o Edge.';
+                    status.style.background = '#ffebee';
+                    status.style.color = '#c62828';
+                }
             });
         </script>
     </body>
